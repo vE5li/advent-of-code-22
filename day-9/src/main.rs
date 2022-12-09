@@ -51,9 +51,9 @@ impl Step {
     fn parse(input: &str) -> Self {
         // Split into a character for the direction and the number of steps to take.
         // Example: "U 12" -> "U", "12"
-        let mut chunks = input.split_ascii_whitespace();
+        let (direction, count) = input.split_once(' ').unwrap();
 
-        let direction = match chunks.next().unwrap() {
+        let direction = match direction {
             "U" => Offset { x: 0, y: 1 },
             "D" => Offset { x: 0, y: -1 },
             "L" => Offset { x: -1, y: 0 },
@@ -61,7 +61,7 @@ impl Step {
             _ => panic!(),
         };
 
-        let count = chunks.next().unwrap().parse::<usize>().unwrap();
+        let count = count.parse::<usize>().unwrap();
 
         Self { direction, count }
     }
@@ -69,11 +69,15 @@ impl Step {
 
 // Function to compute the number of visited position for N number of tail segments.
 fn compute_number_of_visited<const N: usize>(input: &str) -> usize {
-    // Internal state.
-    let mut head_position = Position { x: 0, y: 0 };
-    let mut tail_positions = [Position { x: 0, y: 0 }; N];
+    let mut positions = [Position { x: 0, y: 0 }; N];
     // Add the initial tail position to the set.
-    let mut visited_positions = HashSet::from([tail_positions[0]]);
+    let mut visited_positions = HashSet::from([positions[0]]);
+
+    // Parse every line as a step.
+    let steps = input
+        .split('\n')
+        .filter(|line| !line.is_empty())
+        .map(Step::parse);
 
     // Basically we only care about these 16 cases:
     //
@@ -113,38 +117,27 @@ fn compute_number_of_visited<const N: usize>(input: &str) -> usize {
         _ => Offset { x: 0, y: 0 },
     };
 
-    // Parse every line as a step.
-    let steps = input
-        .split('\n')
-        .filter(|line| !line.is_empty())
-        .map(Step::parse);
-
     // Iterate over all steps.
     for step in steps {
         // We always to one step at a time since it makes the computation a lot easier.
         for _ in 0..step.count {
-            head_position = head_position + step.direction;
+            positions[0] = positions[0] + step.direction;
 
             // Drag all the tails segments behind.
-            for index in 0..tail_positions.len() {
-                // For the first tail segment we want to use the head position as an anchor, for the rest
-                // we use the previous tail segment.
-                let anchor_point = match index {
-                    0 => head_position,
-                    tail => tail_positions[tail - 1],
-                };
-
+            for index in 1..positions.len() {
+                // Position of the previous segment.
+                let anchor_point = positions[index - 1];
                 // Current position of the tail segment.
-                let position = tail_positions[index];
-                // Compute the new position of that tail based on it's anchor point (either the
-                // head or the previous tail segment).
+                let position = positions[index];
+
+                // Compute the new position of that tail based on it's anchor point.
                 let new_position = position + get_tail_move_for_offset(position - anchor_point);
                 // Save the new position.
-                tail_positions[index] = new_position;
+                positions[index] = new_position;
             }
 
             // Remember the location of the last tail segment.
-            visited_positions.insert(tail_positions.last().copied().unwrap());
+            visited_positions.insert(positions.last().copied().unwrap());
         }
     }
 
@@ -160,13 +153,13 @@ fn main() {
 
     // Print result of part 1.
     println!(
-        "The tail with a length of 1 visitied a total of {} different positions.",
-        compute_number_of_visited::<1>(&input)
+        "The rope with a length of 2 visitied a total of {} different positions.",
+        compute_number_of_visited::<2>(&input)
     );
 
     // Print result of part 2.
     println!(
-        "The tail with a length of 9 visitied a total of {} different positions.",
-        compute_number_of_visited::<9>(&input)
+        "The rope with a length of 10 visitied a total of {} different positions.",
+        compute_number_of_visited::<10>(&input)
     );
 }
