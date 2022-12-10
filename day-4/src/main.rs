@@ -32,7 +32,7 @@ fn main() {
         };
 
         // Apply strategy for a given line.
-        let apply_strategy = |line: &str| {
+        let apply_strategy = |line: &&str| {
             let (left, right) = line.split_once(',').unwrap();
             let range1 = parse_range(left).unwrap();
             let range2 = parse_range(right).unwrap();
@@ -44,7 +44,7 @@ fn main() {
         input
             .split('\n')
             .filter(|line| !line.is_empty())
-            .filter(|range| apply_strategy(range))
+            .filter(apply_strategy)
             .count()
     }
 

@@ -37,7 +37,7 @@ fn main() {
             _ => panic!(),
         };
 
-        // Apply strategy to chunks of rucksacks (1 for part one and 3 for part 2).
+        // Apply strategy to chunks of rucksacks (1 for part one and 3 for part two).
         rucksacks
             .array_chunks()
             .map(strategy)
