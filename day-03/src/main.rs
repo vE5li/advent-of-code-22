@@ -42,7 +42,7 @@ fn main() {
             .array_chunks()
             .map(strategy)
             .map(item_to_priority)
-            .sum::<usize>()
+            .sum()
     }
 
     // Print result of part 1.
