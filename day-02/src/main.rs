@@ -44,13 +44,13 @@ fn main() {
 
     // Print solution of part 1.
     println!(
-        "The total amount of points using items would be {}",
+        "The total amount of points using items would be {}.",
         points_for_strategy(&input, truth_table_items)
     );
 
     // Print solution of part 2.
     println!(
-        "The total amount of points using results would be {}",
+        "The total amount of points using results would be {}.",
         points_for_strategy(&input, truth_table_results)
     );
 }
